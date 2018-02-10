@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/auth"
-	"fmt"
+	//"fmt"
 	"net/http"
 	"./controllers"
 	//"./mymodels"

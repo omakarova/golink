@@ -6,7 +6,7 @@ import (
 	"github.com/go-martini/martini"
 	"../mymodels"
 	"net/http"
-
+    "../storage"
 	"github.com/martini-contrib/render"
 	"io/ioutil"
 	"encoding/json"
@@ -24,6 +24,7 @@ func AddNewUser(r render.Render, params martini.Params, req *http.Request) {
 		panic(err)
 	}
 	fmt.Println("Hello world!" + nUser.Username)
+	storage.SaveUserdata(nUser)
 	r.JSON(http.StatusOK, nUser.Username)
 }
 
