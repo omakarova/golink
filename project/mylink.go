@@ -6,17 +6,17 @@ import (
 	"fmt"
 	"net/http"
 	"./controllers"
-	"./mymodels"
+	//"./mymodels"
 	"github.com/martini-contrib/render"
-	"encoding/json"
-	"io/ioutil"
+	//"encoding/json"
+
 )
 
 
 
 func main() {
 	m := martini.Classic()
-	fmt.Println("Hello world!")
+
 	m.Use(func(w http.ResponseWriter) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	})
@@ -25,22 +25,10 @@ func main() {
 	//m.Use(auth.BasicFunc(func(username, password string) bool {return true}))
 
 	Auth := func(username, password string) bool {return true}
+
 	// ROUTES
 	//users
-	m.Post("/users", func(r render.Render, params martini.Params, req *http.Request) {
-
-		body, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			panic(err)
-		}
-		var nUser mymodels.NewUser
-		err = json.Unmarshal(body, &nUser)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("Hello world!" + nUser.Username)
-		r.JSON(http.StatusOK, nUser.Username)
-	})
+	m.Post("/users", controllers.AddNewUser)
 
 	m.Get("/user", auth.BasicFunc(Auth), controllers.GetCurrentUserInfo)
 

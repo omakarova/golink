@@ -8,12 +8,23 @@ import (
 	"net/http"
 
 	"github.com/martini-contrib/render"
+	"io/ioutil"
+	"encoding/json"
 )
 
-func AddNewUser(u1 mymodels.NewUser, res http.ResponseWriter, req *http.Request) {
-    fmt.Println("AddNewUser")
-	res.WriteHeader(200)
-	res.Write([]byte("bubybb" + u1.Username))
+func AddNewUser(r render.Render, params martini.Params, req *http.Request) {
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		panic(err)
+	}
+	var nUser mymodels.NewUser
+	err = json.Unmarshal(body, &nUser)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Hello world!" + nUser.Username)
+	r.JSON(http.StatusOK, nUser.Username)
 }
 
 func GetCurrentUserInfo(r render.Render, params martini.Params, req *http.Request) {
