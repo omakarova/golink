@@ -6,10 +6,10 @@ import (
 	//"fmt"
 	"net/http"
 	"./controllers"
-	//"./mymodels"
+	"./mymodels"
 	"github.com/martini-contrib/render"
 	//"encoding/json"
-
+	"./storage"
 )
 
 
@@ -24,7 +24,10 @@ func main() {
 	m.Use(render.Renderer())
 	//m.Use(auth.BasicFunc(func(username, password string) bool {return true}))
 
-	Auth := func(username, password string) bool {return true}
+	Auth := func(username, password string) bool {
+		user := mymodels.NewUser{Username: username, Password: password}
+		return storage.DoesUserExist(user)
+	}
 
 	// ROUTES
 	//users
