@@ -31,9 +31,13 @@ func main() {
 
 	// ROUTES
 	//users
-	m.Post("/users", controllers.AddNewUser)
+	m.Post("/api/users", controllers.AddNewUser)
 
-	m.Get("/user", auth.BasicFunc(Auth), controllers.GetCurrentUserInfo)
+	m.Get("/api/user", auth.BasicFunc(Auth), controllers.GetCurrentUserInfo)
+
+	//links
+	m.Post("/api/links", auth.BasicFunc(Auth), controllers.AddNewLink)
+	m.Get("/:id", controllers.DoRedirect)
 
 	// users
 	//m.Get("/api/v1/users", controllers.GetUsers)

@@ -47,7 +47,7 @@ func SaveUserData(user mymodels.NewUser) {
 	fmt.Println(res)
 }
 
-func getUserIdByAuthString(auth string) (int, error) {
+func GetUserIdByAuthString(auth string) (int, error) {
 	// query
 	rows, err := db.Query("SELECT id FROM users where auth=?", auth)
 	checkErr(err)

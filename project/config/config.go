@@ -6,6 +6,7 @@ import (
 
 const (
 	DB_CONNECTION_STRING string = "mylink:123@/mylink?charset=utf8"
+	SHORT_LINK_LEN = 9
 )
 
 func init() {
