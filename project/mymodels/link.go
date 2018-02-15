@@ -7,3 +7,6 @@ type NewLink struct {
 type NewLinkResponse struct {
 	ShortURL          string `json:"shorturl"`
 }
+
+
+

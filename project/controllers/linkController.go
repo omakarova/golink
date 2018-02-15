@@ -10,30 +10,8 @@ import (
 	"github.com/martini-contrib/render"
 	"io/ioutil"
 	"encoding/json"
+
 )
-
-func AddNewUser(r render.Render, params martini.Params, req *http.Request) {
-
-	body, err := ioutil.ReadAll(req.Body)
-	checkErr(err)
-
-	var nUser mymodels.NewUser
-	err = json.Unmarshal(body, &nUser)
-	checkErr(err)
-
-	if(storage.DoesUserExist(nUser)) {
-		r.JSON(http.StatusNotAcceptable, "Such user has been already created earlier")
-		return
-	}
-
-	fmt.Println("Hello," + nUser.Username)
-	if( storage.NewUserIsValid(nUser)){
-		storage.SaveUserData(nUser)
-		r.JSON(http.StatusOK, nUser.Username)
-	} else {
-		r.JSON(http.StatusBadRequest, "too long username or password")
-	}
-}
 
 func AddNewLink(r render.Render, params martini.Params, req *http.Request) {
 	id := getCurrentUserId(req)
@@ -48,7 +26,7 @@ func AddNewLink(r render.Render, params martini.Params, req *http.Request) {
 		r.JSON(http.StatusBadRequest, "wrong url")
 	}
 
-	if(storage.DoesLinkExist(newLink, id)) {
+	if(storage.DoesLongLinkExist(newLink, id)) {
 		r.JSON(http.StatusNotAcceptable, "Such link has been already created by current user")
 		return
 	}
@@ -66,7 +44,7 @@ func DoRedirect(r render.Render, params martini.Params, req *http.Request) {
 	if(len(sholturl) < 1) {
 		r.JSON(http.StatusNotFound, "")
 	}
-	longurl, err := storage.GetLongUrl(sholturl)
+	longurl, err := storage.GetLongUrlByShortLink(sholturl)
 	if(err != nil){
 		r.JSON(http.StatusNotFound, "There are no URLs for " + sholturl)
 	}
@@ -75,20 +53,27 @@ func DoRedirect(r render.Render, params martini.Params, req *http.Request) {
 	r.Redirect(longurl,http.StatusPermanentRedirect)
 }
 
-func getCurrentUserId(req *http.Request) int {
-	auth := req.Header.Get("Authorization")
-	id, err := storage.GetUserIdByAuthString(auth)
-    checkErr(err)
-    return id
-}
-
-func GetCurrentUserInfo(r render.Render, params martini.Params, req *http.Request) {
-	auth := req.Header.Get("Authorization")
-	r.JSON(http.StatusOK, auth)
-}
-
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
+func DeleteLink(r render.Render, params martini.Params, req *http.Request) {
+	sholturl := params["id"]
+	currentUserId := getCurrentUserId(req)
+	if( !storage.DoesShortLinkExist(sholturl, currentUserId)){
+		r.JSON(http.StatusNotFound, "wrong short url")
 	}
+
+	storage.DeleteLink(sholturl, currentUserId)
+	r.JSON(http.StatusOK, sholturl)
+}
+
+func GetShortLinksByUser(r render.Render, params martini.Params, req *http.Request) {
+	currentUserId := getCurrentUserId(req)
+	links := storage.GetAllLinksByUserId(currentUserId)
+	if(links == nil || len(links) < 0){
+		r.JSON(http.StatusOK, "{}")
+		return
+	}
+
+	//к сожалению, json не хочет нормально маршалить список из структур :(
+	//поэтому обойдемся слайсом из строк
+	r.JSON(http.StatusOK, links)
+
 }

@@ -9,11 +9,22 @@ import (
 	"time"
 	"errors"
     s "strings"
+	//"container/list"
 )
 
 
-func DoesLinkExist(link mymodels.NewLink, userId int) bool {
+func DoesLongLinkExist(link mymodels.NewLink, userId int) bool {
 	rows, err := db.Query("SELECT id FROM links where longurl=? AND userid=?", link.URL, userId)
+	checkErr(err)
+
+	if(!rows.Next()) {
+		return false
+	}
+	return true
+}
+
+func DoesShortLinkExist(shortlink string, userId int) bool {
+	rows, err := db.Query("SELECT id FROM links where shorturl=? AND userid=?", shortlink, userId)
 	checkErr(err)
 
 	if(!rows.Next()) {
@@ -39,7 +50,7 @@ func CreateNewLink(link mymodels.NewLink, userId int) *mymodels.NewLinkResponse 
 	return &newLinkResponse
 }
 
-func GetLongUrl(shortUrl string) (string, error) {
+func GetLongUrlByShortLink(shortUrl string) (string, error) {
 	rows, err := db.Query("SELECT longurl FROM links where shorturl=?", shortUrl)
 	checkErr(err)
 
@@ -50,6 +61,24 @@ func GetLongUrl(shortUrl string) (string, error) {
 		return longurl, nil
 	}
 	return "", errors.New("no such link")
+}
+
+func DeleteLink(shortlink string, userId int) {
+	_, err := db.Query("DELETE FROM links where shorturl=? AND userid=?", shortlink, userId)
+	checkErr(err)
+}
+
+func GetAllLinksByUserId(userId int) []string {
+	rows, err := db.Query("SELECT shorturl FROM links where userid=?", userId)
+	checkErr(err)
+	alist := make([]string, 0, 20)
+	for rows.Next() {
+		var vLink string
+		err = rows.Scan(&vLink)
+		checkErr(err)
+		alist = append(alist, vLink)
+	}
+	return alist
 }
 
 func generateRandomStr() string {
