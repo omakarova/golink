@@ -44,23 +44,25 @@ func CreateNewLink(link mymodels.NewLink, userId int) *mymodels.NewLinkResponse 
 	stmt, err := db.Prepare("INSERT links SET longurl=?, shorturl=?, userid=?")
 	checkErr(err)
 	res, err := stmt.Exec(longlink, shortLink, userId)
+	checkErr(err)
 	fmt.Println(res)
 
 	newLinkResponse := mymodels.NewLinkResponse{ShortURL: shortLink}
 	return &newLinkResponse
 }
 
-func GetLongUrlByShortLink(shortUrl string) (string, error) {
-	rows, err := db.Query("SELECT longurl FROM links where shorturl=?", shortUrl)
+func GetLongUrlAndIdByShortLink(shortUrl string) (string, int, error) {
+	rows, err := db.Query("SELECT longurl, id FROM links where shorturl=?", shortUrl)
 	checkErr(err)
 
 	if(rows.Next()) {
 		var longurl string
-		err = rows.Scan(&longurl)
+		var linkid int
+		err = rows.Scan(&longurl, &linkid)
 		checkErr(err)
-		return longurl, nil
+		return longurl, linkid, nil
 	}
-	return "", errors.New("no such link")
+	return "", -1, errors.New("no such link")
 }
 
 func DeleteLink(shortlink string, userId int) {

@@ -44,12 +44,14 @@ func DoRedirect(r render.Render, params martini.Params, req *http.Request) {
 	if(len(sholturl) < 1) {
 		r.JSON(http.StatusNotFound, "")
 	}
-	longurl, err := storage.GetLongUrlByShortLink(sholturl)
+	longurl, linkid, err := storage.GetLongUrlAndIdByShortLink(sholturl)
 	if(err != nil){
 		r.JSON(http.StatusNotFound, "There are no URLs for " + sholturl)
 	}
+	storage.AddStat(req, linkid)
 	//r.Header().Add("Location", longurl)
 	//r.Status(http.StatusPermanentRedirect)
+	r.Header().Add("Cache-control", "no-cache")
 	r.Redirect(longurl,http.StatusPermanentRedirect)
 }
 
