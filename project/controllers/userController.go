@@ -37,12 +37,16 @@ func AddNewUser(r render.Render, params martini.Params, req *http.Request) {
 
 func GetCurrentUserInfo(r render.Render, params martini.Params, req *http.Request) {
 	auth := req.Header.Get("Authorization")
-	r.JSON(http.StatusOK, auth)
+	id, username, err := storage.GetUserDataByAuthString(auth)
+	checkErr(err)
+	linkscount := storage.GetLinksCountByUserId(id)
+	userInfo := mymodels.UserInfo{Username: username, LinksCount: linkscount}
+	r.JSON(http.StatusOK, userInfo)
 }
 
 func getCurrentUserId(req *http.Request) int {
 	auth := req.Header.Get("Authorization")
-	id, err := storage.GetUserIdByAuthString(auth)
+	id, _, err := storage.GetUserDataByAuthString(auth)
 	checkErr(err)
 	return id
 }

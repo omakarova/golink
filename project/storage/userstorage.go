@@ -47,16 +47,19 @@ func SaveUserData(user mymodels.NewUser) {
 	fmt.Println(res)
 }
 
-func GetUserIdByAuthString(auth string) (int, error) {
+func GetUserDataByAuthString(auth string) (int, string, error) {
 	// query
-	rows, err := db.Query("SELECT id FROM users where auth=?", auth)
+	rows, err := db.Query("SELECT id, username FROM users where auth=?", auth)
 	checkErr(err)
 
 	for rows.Next() {
 		var uid int
-		err = rows.Scan(&uid)
+		var username string
+		err = rows.Scan(&uid, &username)
 		checkErr(err)
-		return uid, nil
+		return uid, username, nil
 	}
-	return -1, errors.New("no such user")
+	return -1, "", errors.New("no such user")
 }
+
+

@@ -34,10 +34,14 @@ func main() {
 	m.Get("/api/user", auth.BasicFunc(Auth), controllers.GetCurrentUserInfo)
 
 	//links
-	m.Post("/api/links", auth.BasicFunc(Auth), controllers.AddNewLink)
 	m.Get("/:id", controllers.DoRedirect)
+	m.Post("/api/links", auth.BasicFunc(Auth), controllers.AddNewLink)
 	m.Delete("/api/links/:id", auth.BasicFunc(Auth), controllers.DeleteLink)
 	m.Get("/api/links", auth.BasicFunc(Auth), controllers.GetShortLinksByUser)
+	m.Get("/api/links/:id", auth.BasicFunc(Auth), controllers.GetLinkInfoByUser)
+
+	//statistics
+	m.Get("/api/stat/topref", auth.BasicFunc(Auth), controllers.GetTopReferrersByUser)
 
 
 

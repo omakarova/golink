@@ -79,3 +79,26 @@ func GetShortLinksByUser(r render.Render, params martini.Params, req *http.Reque
 	r.JSON(http.StatusOK, links)
 
 }
+
+func GetLinkInfoByUser(r render.Render, params martini.Params, req *http.Request) {
+	currentUserId := getCurrentUserId(req)
+	sholturl := params["id"]
+	linkId, longurl, err := storage.GetLinkIdByShortLinkAndUserId(sholturl, currentUserId)
+	if (err != nil){
+		r.JSON(http.StatusNotFound, "wrong short url")
+	}
+	number, err := storage.GetNumberOfClicks(linkId)
+	linkInfo := mymodels.LinkInfo{ShortURL: sholturl, LongURL: longurl, NumberOfClicks: 0}
+	if (err == nil){
+		linkInfo.NumberOfClicks = number
+	}
+	r.JSON(http.StatusOK, linkInfo)
+}
+
+func GetTopReferrersByUser(r render.Render, params martini.Params, req *http.Request) {
+	currentUserId := getCurrentUserId(req)
+
+	referers := storage.GetTopReferrersByUser(currentUserId)
+
+	r.JSON(http.StatusOK, referers)
+}

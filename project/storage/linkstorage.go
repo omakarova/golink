@@ -52,17 +52,31 @@ func CreateNewLink(link mymodels.NewLink, userId int) *mymodels.NewLinkResponse 
 }
 
 func GetLongUrlAndIdByShortLink(shortUrl string) (string, int, error) {
-	rows, err := db.Query("SELECT longurl, id FROM links where shorturl=?", shortUrl)
+	rows, err := db.Query("SELECT id, longurl FROM links where shorturl=?", shortUrl)
 	checkErr(err)
 
 	if(rows.Next()) {
 		var longurl string
 		var linkid int
-		err = rows.Scan(&longurl, &linkid)
+		err = rows.Scan(&linkid, &longurl)
 		checkErr(err)
 		return longurl, linkid, nil
 	}
 	return "", -1, errors.New("no such link")
+}
+
+func GetLinkIdByShortLinkAndUserId(shortUrl string, userId int) (int, string, error) {
+	rows, err := db.Query("SELECT id, longurl FROM links where shorturl=? AND userid=?", shortUrl, userId)
+	checkErr(err)
+
+	if(rows.Next()) {
+		var linkid int
+		var longurl string
+		err = rows.Scan(&linkid, &longurl)
+		checkErr(err)
+		return linkid, longurl, nil
+	}
+	return -1, "", errors.New("no such link")
 }
 
 func DeleteLink(shortlink string, userId int) {
@@ -81,6 +95,18 @@ func GetAllLinksByUserId(userId int) []string {
 		alist = append(alist, vLink)
 	}
 	return alist
+}
+
+func GetLinksCountByUserId(userId int) int {
+	rows, err := db.Query("SELECT count(id) FROM links where userid=?", userId)
+	checkErr(err)
+	if(rows.Next()) {
+		var numberOfLinks int
+		err = rows.Scan(&numberOfLinks)
+		checkErr(err)
+		return numberOfLinks
+	}
+	return 0
 }
 
 func generateRandomStr() string {
