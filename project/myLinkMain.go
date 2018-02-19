@@ -8,12 +8,20 @@ import (
 	"./mymodels"
 	"github.com/martini-contrib/render"
 	"./storage"
+	"github.com/BurntSushi/toml"
+	"./config"
 )
 
 
 
 func main() {
 	m := martini.Classic()
+
+	if _, err := toml.DecodeFile("config.toml", &config.Config); err != nil {
+		config.Config = config.ConfigT{config.DB_CONNECTION_STRING_CONST, config.SHORT_LINK_LEN_CONST}
+	}
+
+	storage.InitDB (config.Config.DB_CONNECTION_STRING)
 
 	m.Use(func(w http.ResponseWriter) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -42,8 +50,7 @@ func main() {
 
 	//statistics
 	m.Get("/api/stat/topref", auth.BasicFunc(Auth), controllers.GetTopReferrersByUser)
-
-
+    m.Get("/api/stat/interval/:id", auth.BasicFunc(Auth), controllers.GetLinksStatByUser)
 
 	m.Run()
 }

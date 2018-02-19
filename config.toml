@@ -1,0 +1,3 @@
+# config.toml
+DB_CONNECTION_STRING = "mylink:123@/mylink?charset=utf8"
+SHORT_LINK_LEN = 9

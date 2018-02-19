@@ -24,6 +24,7 @@ func AddNewLink(r render.Render, params martini.Params, req *http.Request) {
 
 	if( !storage.NewLinkIsValid(newLink)){
 		r.JSON(http.StatusBadRequest, "wrong url")
+		return
 	}
 
 	if(storage.DoesLongLinkExist(newLink, id)) {
@@ -43,10 +44,12 @@ func DoRedirect(r render.Render, params martini.Params, req *http.Request) {
 	fmt.Println(sholturl)
 	if(len(sholturl) < 1) {
 		r.JSON(http.StatusNotFound, "")
+		return
 	}
 	longurl, linkid, err := storage.GetLongUrlAndIdByShortLink(sholturl)
 	if(err != nil){
 		r.JSON(http.StatusNotFound, "There are no URLs for " + sholturl)
+		return
 	}
 	storage.AddStat(req, linkid)
 	//r.Header().Add("Location", longurl)
@@ -60,6 +63,7 @@ func DeleteLink(r render.Render, params martini.Params, req *http.Request) {
 	currentUserId := getCurrentUserId(req)
 	if( !storage.DoesShortLinkExist(sholturl, currentUserId)){
 		r.JSON(http.StatusNotFound, "wrong short url")
+		return
 	}
 
 	storage.DeleteLink(sholturl, currentUserId)
@@ -86,6 +90,7 @@ func GetLinkInfoByUser(r render.Render, params martini.Params, req *http.Request
 	linkId, longurl, err := storage.GetLinkIdByShortLinkAndUserId(sholturl, currentUserId)
 	if (err != nil){
 		r.JSON(http.StatusNotFound, "wrong short url")
+		return
 	}
 	number, err := storage.GetNumberOfClicks(linkId)
 	linkInfo := mymodels.LinkInfo{ShortURL: sholturl, LongURL: longurl, NumberOfClicks: 0}
@@ -101,4 +106,12 @@ func GetTopReferrersByUser(r render.Render, params martini.Params, req *http.Req
 	referers := storage.GetTopReferrersByUser(currentUserId)
 
 	r.JSON(http.StatusOK, referers)
+}
+
+func GetLinksStatByUser(r render.Render, params martini.Params, req *http.Request) {
+	currentUserId := getCurrentUserId(req)
+    interval := params["id"]
+	linksMap := storage.GetStatDataForUser(currentUserId, interval)
+
+	r.JSON(http.StatusOK, linksMap)
 }

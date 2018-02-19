@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"../mymodels"
-	"../config"
 	"encoding/base64"
 
 	"errors"
@@ -14,11 +13,11 @@ import (
 var db *sql.DB
 var err error
 
-
-func init() {
+func InitDB(conString string) {
 	fmt.Println("init db")
-	db, err = sql.Open("mysql", config.DB_CONNECTION_STRING)
+	db, err = sql.Open("mysql", conString)
 	checkErr(err)
+
 }
 
 func checkErr(err error) {

@@ -43,8 +43,16 @@ func CreateNewLink(link mymodels.NewLink, userId int) *mymodels.NewLinkResponse 
 	// insert
 	stmt, err := db.Prepare("INSERT links SET longurl=?, shorturl=?, userid=?")
 	checkErr(err)
+
 	res, err := stmt.Exec(longlink, shortLink, userId)
-	checkErr(err)
+
+	if(err != nil){
+		//скорее всего, не уникальный shorturl
+		//попробуем еще раз TODO выяснить, какую ошибку мы получим в случае нарушения уникальности
+		shortLink = "m" + generateRandomStr()
+		res, err = stmt.Exec(longlink, shortLink, userId)
+		checkErr(err)
+	}
 	fmt.Println(res)
 
 	newLinkResponse := mymodels.NewLinkResponse{ShortURL: shortLink}
@@ -111,7 +119,7 @@ func GetLinksCountByUserId(userId int) int {
 
 func generateRandomStr() string {
 	pool := "0123456789abcdefghijklmnopqrstuvwxyz"
-	length := config.SHORT_LINK_LEN - 1
+	length := config.Config.SHORT_LINK_LEN - 1
 	b := make([]byte, length)
 	rg := rand.New(rand.NewSource(time.Now().Unix()))
 	for i, _ := range b {

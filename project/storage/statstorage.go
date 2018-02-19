@@ -3,7 +3,7 @@ package storage
 import (
 	"fmt"
 	"net/http"
-
+	"database/sql"
 )
 
 
@@ -50,9 +50,32 @@ func GetTopReferrersByUser(currentUserId int) []string {
 	return alist
 }
 
-func GetStatDataForUser() {
-	//mysql> SELECT COUNT(`id`), DATE_FORMAT(`f_date_time`, '%Y %m %d %H %i') as dat
-	//FROM statistics where linkid in(select id from links where userid=1) GROUP BY da
-	//	t ORDER BY dat DESC;
+func GetStatDataForUser(currentUserId int, interval string) map[string]int {
+	var rows *sql.Rows
+	var err error
+	switch interval {
+		case "d": rows, err = db.Query("SELECT COUNT(`id`), DATE_FORMAT(`f_date_time`, '%Y %m %d') as dat " +
+				"FROM statistics where linkid in(select id from links where userid=?) GROUP BY dat" +
+				" ORDER BY dat DESC;", currentUserId)
+	    case "h": rows, err = db.Query("SELECT COUNT(`id`), DATE_FORMAT(`f_date_time`, '%Y %m %d %H') as dat " +
+			"FROM statistics where linkid in(select id from links where userid=?) GROUP BY dat" +
+			" ORDER BY dat DESC;", currentUserId)
+	case "i": rows, err = db.Query("SELECT COUNT(`id`), DATE_FORMAT(`f_date_time`, '%Y %m %d %H %i') as dat " +
+		"FROM statistics where linkid in(select id from links where userid=?) GROUP BY dat" +
+		" ORDER BY dat DESC;", currentUserId)
+	default: rows, err = db.Query("SELECT COUNT(`id`), DATE_FORMAT(`f_date_time`, '%Y %m %d %H') as dat " +
+		"FROM statistics where linkid in(select id from links where userid=?) GROUP BY dat" +
+		" ORDER BY dat DESC;", currentUserId)
+	}
+	checkErr(err)
+	amap := make(map[string]int)
+	for rows.Next() {
+		var interval string
+		var count int
+		err = rows.Scan(&count, &interval)
+		checkErr(err)
+		amap[interval] = count
+	}
+	return amap
 }
 
