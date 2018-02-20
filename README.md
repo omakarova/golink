@@ -28,7 +28,7 @@
 	    `users` (
 	        `id` INT(11) NOT NULL AUTO_INCREMENT,
 	        `username` CHAR(32) NOT NULL,
-            `password` CHAR(128) NOT NULL,
+                `password` CHAR(128) NOT NULL,
 	        `auth` CHAR(255) NOT NULL,
 	        PRIMARY KEY(`id`),
      		UNIQUE(`username`, `password`)
@@ -39,7 +39,7 @@
 	        `id` INT(11) NOT NULL AUTO_INCREMENT,
 	        `longurl` CHAR(255) NOT NULL,
 	        `shorturl` CHAR(255) NOT NULL UNIQUE,
-            `userid` INT(11) NOT NULL,
+                `userid` INT(11) NOT NULL,
  	        PRIMARY KEY(`id`),
     		FOREIGN KEY `linkToUserFK` (`userid`)
             REFERENCES users(id)
@@ -51,7 +51,7 @@
 	        `id` INT(11) NOT NULL AUTO_INCREMENT,
 	        `linkid` INT(11) NOT NULL,
 	        `referer` CHAR(255),
-            `f_date_time` DATETIME NOT NULL,
+                `f_date_time` DATETIME NOT NULL,
 	        PRIMARY KEY(`id`),
     		FOREIGN KEY `statToLinkFK` (`linkid`)
             REFERENCES links(id)
