@@ -18,7 +18,8 @@
 
 Например, так
 
-    ```create database golink;
+    ```
+    create database golink;
     grant all privileges on golink.* to golink@localhost identified by '123';
     use golink;
     ```
